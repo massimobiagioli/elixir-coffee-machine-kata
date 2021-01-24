@@ -1,5 +1,5 @@
 defmodule CoffeeMachine.CoffeeMachine do
-  alias CoffeeMachine.Order
+  alias CoffeeMachine.{Order, DrinkMaker}
 
   @doc """
   Put new order to Coffee Machine
@@ -9,33 +9,24 @@ defmodule CoffeeMachine.CoffeeMachine do
       iex> alias CoffeeMachine.{Order, CoffeeMachine}
       iex> {:ok, coffee} = Order.new(:coffee, 1)
       iex> CoffeeMachine.put_order(coffee)
-      "Command: C:1:1 sent to drink maker"
+      "C:1:1 done!"
 
       iex> alias CoffeeMachine.{Order, CoffeeMachine}
       iex> {:ok, chocolate_sugar_free} = Order.new(:chocolate, 0)
       iex> CoffeeMachine.put_order(chocolate_sugar_free)
-      "Command: H:: sent to drink maker"
+      "H:: done!"
 
   """
   def put_order(%Order{} = order) do
     order
     |> format_for_drink_maker()
-    |> send_to_drink_maker()
+    |> DrinkMaker.process_command()
+    |> parse_received_message()
   end
 
-  @doc """
-  Receive message from drink maker
-
-  ## Examples
-
-      iex> alias CoffeeMachine.CoffeeMachine
-      iex> CoffeeMachine.receive_message("M:Coffee with one sugar")
-      "Coffee with one sugar"
-
-  """
-  def receive_message(message) do
+  defp parse_received_message(message) do
     message
-    |> String.split(":")
+    |> String.split(":", parts: 2)
     |> process_message()
   end
 
@@ -54,9 +45,5 @@ defmodule CoffeeMachine.CoffeeMachine do
   end
 
   defp serialize_quantity(n), do: if n > 0, do: Integer.to_string(n), else: ""
-
-  defp send_to_drink_maker(command) do
-    "Command: #{command} sent to drink maker"
-  end
 
 end
