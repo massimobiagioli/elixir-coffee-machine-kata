@@ -8,19 +8,24 @@ defmodule CoffeeMachine.CoffeeMachine do
 
       iex> alias CoffeeMachine.{Order, CoffeeMachine}
       iex> {:ok, coffee} = Order.new(:coffee, 1)
-      iex> CoffeeMachine.put_order(coffee)
+      iex> CoffeeMachine.put_order(coffee, 1.0)
       "C:1:1 done!"
 
       iex> alias CoffeeMachine.{Order, CoffeeMachine}
       iex> {:ok, chocolate_sugar_free} = Order.new(:chocolate, 0)
-      iex> CoffeeMachine.put_order(chocolate_sugar_free)
+      iex> CoffeeMachine.put_order(chocolate_sugar_free, 1.0)
       "H:: done!"
 
+      iex> alias CoffeeMachine.{Order, CoffeeMachine}
+      iex> {:ok, coffee} = Order.new(:coffee, 1)
+      iex> CoffeeMachine.put_order(coffee, 0.5)
+      "Not enough money!"
+
   """
-  def put_order(%Order{} = order) do
+  def put_order(%Order{} = order, money) do
     order
     |> format_for_drink_maker()
-    |> DrinkMaker.process_command()
+    |> DrinkMaker.process_command(money)
     |> parse_received_message()
   end
 
